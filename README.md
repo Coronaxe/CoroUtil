@@ -1,2 +1,2 @@
 # CoroUtil
-Uility Library with some useful functions
+This project is a help for myy... well... other projects! (:
