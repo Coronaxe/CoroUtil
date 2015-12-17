@@ -15,6 +15,8 @@ import javax.crypto.Cipher;
  *
  */
 public class ADEC {
+	
+	public final String version = "0.1";
 
 	private KeyPair keypair;
 	private PublicKey publicKey;

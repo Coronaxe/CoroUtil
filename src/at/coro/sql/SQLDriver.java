@@ -7,7 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SQLDriver {
-	public static final String version = "0.3";
+	
+	public final String version = "0.3";
+	
 	private Statement stmnt;
 
 	public SQLDriver(String host, String username, String password,

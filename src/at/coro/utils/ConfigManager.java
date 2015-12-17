@@ -8,6 +8,9 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class ConfigManager {
+	
+	public final String version = "0.2";
+	
 	private String path;
 
 	public ConfigManager(String configPath) {
