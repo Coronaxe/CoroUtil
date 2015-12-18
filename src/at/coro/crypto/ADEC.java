@@ -1,5 +1,6 @@
 package at.coro.crypto;
 
+import java.security.InvalidKeyException;
 import java.security.KeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -7,15 +8,20 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 /**
  * Asymmetric De and EnCoder
+ * 
  * @author Coronaxe
  *
  */
 public class ADEC {
-	
+
 	public final String version = "0.1";
 
 	private KeyPair keypair;
@@ -29,8 +35,8 @@ public class ADEC {
 		generateAsymmetricKeyPair(keysize);
 	}
 
-	public ADEC(int keysize) throws KeyException,
-			NoSuchAlgorithmException, NoSuchProviderException {
+	public ADEC(int keysize) throws KeyException, NoSuchAlgorithmException,
+			NoSuchProviderException {
 		generateAsymmetricKeyPair(keysize);
 	}
 
@@ -68,19 +74,35 @@ public class ADEC {
 	 * @param key
 	 *            :The public key
 	 * @return Encrypted text
+	 * @throws NoSuchPaddingException
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeyException
+	 * @throws BadPaddingException
+	 * @throws IllegalBlockSizeException
 	 * @throws java.lang.Exception
 	 */
-	public byte[] encryptString(String text) {
+	public byte[] encryptString(String text) throws NoSuchAlgorithmException,
+			NoSuchPaddingException, InvalidKeyException,
+			IllegalBlockSizeException, BadPaddingException {
 		byte[] cipherText = null;
-		try {
-			// get an RSA cipher object and print the provider
-			final Cipher cipher = Cipher.getInstance(this.ALGORITHM);
-			// encrypt the plain text using the public key
-			cipher.init(Cipher.ENCRYPT_MODE, this.publicKey);
-			cipherText = cipher.doFinal(text.getBytes());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		// get an RSA cipher object and print the provider
+		final Cipher cipher = Cipher.getInstance(this.ALGORITHM);
+		// encrypt the plain text using the public key
+		cipher.init(Cipher.ENCRYPT_MODE, this.publicKey);
+		cipherText = cipher.doFinal(text.getBytes());
+		return cipherText;
+	}
+
+	public byte[] encryptString(PublicKey encryptionKey, String text)
+			throws InvalidKeyException, IllegalBlockSizeException,
+			BadPaddingException, NoSuchAlgorithmException,
+			NoSuchPaddingException {
+		byte[] cipherText = null;
+		// get an RSA cipher object and print the provider
+		final Cipher cipher = Cipher.getInstance(encryptionKey.getAlgorithm());
+		// encrypt the plain text using the public key
+		cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
+		cipherText = cipher.doFinal(text.getBytes());
 		return cipherText;
 	}
 
@@ -92,22 +114,26 @@ public class ADEC {
 	 * @param key
 	 *            :The private key
 	 * @return plain text
+	 * @throws NoSuchPaddingException
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeyException
+	 * @throws BadPaddingException
+	 * @throws IllegalBlockSizeException
 	 * @throws java.lang.Exception
 	 */
-	public String decryptString(byte[] text) {
+	public String decryptString(byte[] text) throws NoSuchAlgorithmException,
+			NoSuchPaddingException, InvalidKeyException,
+			IllegalBlockSizeException, BadPaddingException {
 		byte[] dectyptedText = null;
-		try {
-			// get an RSA cipher object and print the provider
-			final Cipher cipher = Cipher.getInstance(this.ALGORITHM);
 
-			// decrypt the text using the private key
-			cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
-			dectyptedText = cipher.doFinal(text);
+		// get an RSA cipher object and print the provider
+		final Cipher cipher = Cipher.getInstance(this.ALGORITHM);
 
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+		// decrypt the text using the private key
+		cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
+		dectyptedText = cipher.doFinal(text);
 
 		return new String(dectyptedText);
 	}
+
 }
