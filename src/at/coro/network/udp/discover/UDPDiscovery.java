@@ -10,11 +10,11 @@ import java.util.Enumeration;
 
 public class UDPDiscovery {
 
-	public String discover(String keyPhrase, int port) {
+	public String[] discover(String keyPhrase, int port) {
 		return discover(keyPhrase, port, 10000);
 	}
 
-	public String discover(String keyPhrase, int port, int timeout) {
+	public String[] discover(String startKeyPhrase, int port, int timeout) {
 		DatagramSocket socket = null;
 		try {
 			// Keep a socket open to listen to all the UDP traffic that is
@@ -29,8 +29,7 @@ public class UDPDiscovery {
 
 				// Receive a packet
 				byte[] recvBuf = new byte[15000];
-				DatagramPacket packet = new DatagramPacket(recvBuf,
-						recvBuf.length);
+				DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
 				socket.receive(packet);
 
 				// Packet received
@@ -42,10 +41,10 @@ public class UDPDiscovery {
 
 				// See if the packet holds the right command (message)
 				String message = new String(packet.getData()).trim();
-				if (message.contains(keyPhrase)) {
+				if (message.startsWith(startKeyPhrase)) {
 					socket.close();
-					return packet.getAddress().getHostAddress() + ";"
-							+ new String(packet.getData()).trim();
+					return new String[] { packet.getAddress().getHostAddress().toString(),
+							new String(packet.getData()).trim() };
 				}
 			}
 		} catch (IOException ex) {
@@ -68,8 +67,7 @@ public class UDPDiscovery {
 
 			// Try the 255.255.255.255 first
 			try {
-				DatagramPacket sendPacket = new DatagramPacket(sendData,
-						sendData.length,
+				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length,
 						InetAddress.getByName("255.255.255.255"), port);
 				socket.send(sendPacket);
 				// System.out .println(getClass().getName() +
@@ -78,19 +76,16 @@ public class UDPDiscovery {
 			}
 
 			// Broadcast the message over all the network interfaces
-			Enumeration<NetworkInterface> interfaces = NetworkInterface
-					.getNetworkInterfaces();
+			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 			while (interfaces.hasMoreElements()) {
-				NetworkInterface networkInterface = (NetworkInterface) interfaces
-						.nextElement();
+				NetworkInterface networkInterface = (NetworkInterface) interfaces.nextElement();
 
 				if (networkInterface.isLoopback() || !networkInterface.isUp()) {
 					continue; // Don't want to broadcast to the loopback
 								// interface
 				}
 
-				for (InterfaceAddress interfaceAddress : networkInterface
-						.getInterfaceAddresses()) {
+				for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
 					InetAddress broadcast = interfaceAddress.getBroadcast();
 					if (broadcast == null) {
 						continue;
@@ -98,8 +93,7 @@ public class UDPDiscovery {
 
 					// Send the broadcast package!
 					try {
-						DatagramPacket sendPacket = new DatagramPacket(
-								sendData, sendData.length, broadcast, port);
+						DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, broadcast, port);
 						socket.send(sendPacket);
 					} catch (Exception e) {
 					}
