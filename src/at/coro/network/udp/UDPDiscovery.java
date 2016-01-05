@@ -1,4 +1,4 @@
-package at.coro.network.udp.discover;
+package at.coro.network.udp;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
