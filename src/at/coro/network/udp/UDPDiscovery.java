@@ -17,29 +17,17 @@ public class UDPDiscovery {
 	public String[] discover(String startKeyPhrase, int port, int timeout) {
 		DatagramSocket socket = null;
 		try {
-			// Keep a socket open to listen to all the UDP traffic that is
-			// destined for this port
+
 			socket = new DatagramSocket(port, InetAddress.getByName("0.0.0.0"));
 			socket.setBroadcast(true);
 			socket.setSoTimeout(timeout);
 
 			while (true) {
-				// System.out.println(getClass().getName()+
-				// ">>>Ready to receive broadcast packets!");
 
-				// Receive a packet
 				byte[] recvBuf = new byte[15000];
 				DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
 				socket.receive(packet);
 
-				// Packet received
-				// System.out.println(getClass().getName()+
-				// ">>>Discovery packet received from: "+
-				// packet.getAddress().getHostAddress());
-				// System.out.println(getClass().getName()+
-				// ">>>Packet received; data: "+ new String(packet.getData()));
-
-				// See if the packet holds the right command (message)
 				String message = new String(packet.getData()).trim();
 				if (message.startsWith(startKeyPhrase)) {
 					socket.close();
@@ -98,10 +86,6 @@ public class UDPDiscovery {
 					} catch (Exception e) {
 					}
 
-					// System.out.println(getClass().getName() +
-					// ">>> Request packet sent to: " +
-					// broadcast.getHostAddress() + "; Interface: " +
-					// networkInterface.getDisplayName());
 				}
 			}
 		} catch (IOException ex) {
